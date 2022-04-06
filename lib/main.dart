@@ -5,6 +5,9 @@ import 'package:flutter_audio_capture/flutter_audio_capture.dart';
 import 'package:scidart/scidart.dart';
 import 'package:scidart/numdart.dart';
 
+import './graphic/graphic_base.dart';
+import './api/api_base.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -16,7 +19,7 @@ class MyApp extends StatefulWidget {
 //===================================================
 
 class _MyAppState extends State<MyApp> {
-  FlutterAudioCapture _plugin = new FlutterAudioCapture();
+  final capture = AudioCapture();
   bool isRecording = false;
 
   @override
@@ -24,41 +27,11 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  Future<void> _startCapture() async {
-    await _plugin.start(listener, onError, sampleRate: 16000, bufferSize: 3000);
-  }
-
-  Future<void> _stopCapture() async {
-    await _plugin.stop();
-  }
-
-  void listener(dynamic obj) {
-    List<double> X = [];
-    obj.forEach((element) {
-      X.add(element);
-    });
-    var Y = fft(arrayToComplexArray(Array(X)));
-    int i = 0;
-    var list = arrayComplexAbs(Y);
-    list.forEach((element) => {print('${i++};$element')});
-  }
-
-  void onError(Object e) {
-    print(e);
-  }
-
-  void tooggleRecord() async {
+  void tooggleRecord() {
     isRecording ? isRecording = false : isRecording = true;
-    if (isRecording) {
-      await _startCapture();
-    } else {
-      await _stopCapture();
-    }
+    capture.tooggleRecord();
     setState(() {});
   }
-
-  Icon _getIcon() =>
-      isRecording ? Icon(Icons.stop) : Icon(Icons.keyboard_voice);
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +41,9 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: Text('Thermometr'),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: tooggleRecord,
-          child: _getIcon(),
+        floatingActionButton: MainFloatingButton(
+          isRecording: isRecording,
+          selectHandler: tooggleRecord,
         ),
       ),
     );
