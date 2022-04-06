@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter_audio_capture/flutter_audio_capture.dart';
-import 'package:scidart/scidart.dart';
+import 'package:flutter/material.dart';
 import 'package:scidart/numdart.dart';
+import 'package:scidart/scidart.dart';
 
 import './graphic/graphic_base.dart';
 import './api/api_base.dart';
@@ -19,17 +19,74 @@ class MyApp extends StatefulWidget {
 //===================================================
 
 class _MyAppState extends State<MyApp> {
-  final capture = AudioCapture();
+  final FlutterAudioCapture _plugin = FlutterAudioCapture();
+  List<ChartData> data = [];
   bool isRecording = false;
+  bool isBlocked = false;
+  int samplingRate = 16000;
+  double maxFrequency = 0;
+  double? chartHeight = null;
 
   @override
   void initState() {
     super.initState();
   }
 
-  void tooggleRecord() {
+  Future<void> _startCapture() async {
+    await _plugin.start(listener, onError,
+        sampleRate: samplingRate, bufferSize: 5000);
+  }
+
+  Future<void> _stopCapture() async {
+    await _plugin.stop();
+  }
+
+  void listener(dynamic obj) async {
+    await _stopCapture();
+    draw(obj);
+    await _startCapture();
+  }
+
+  Future<void> draw(dynamic obj) async {
+    data = [];
+    List<double> X = [];
+    obj.forEach((element) {
+      X.add(element);
+    });
+    var Y = fft(arrayToComplexArray(
+        Array(X.getRange(0, (X.length / 2).toInt()).toList())));
+    var power = arrayComplexAbs(Y).l;
+    List<double> frequency = [];
+    for (int i = 0; i < power.length ~/ 2; i++) {
+      frequency.add((i * samplingRate) / (power.length * 4));
+      data.add(ChartData(power[i]!, frequency[i]));
+    }
+    //maxFrequency = frequency[arrayArgMax(power)];
+    setState(() {});
+  }
+
+  void onError(Object e) {
+    print(e);
+  }
+
+  void tooggleRecord() async {
     isRecording ? isRecording = false : isRecording = true;
-    capture.tooggleRecord();
+    if (isRecording) {
+      await _startCapture();
+    } else {
+      await _stopCapture();
+    }
+    setState(() {});
+  }
+
+  void blockChart() {
+    if (isBlocked) {
+      isBlocked = false;
+      chartHeight = null;
+    } else {
+      isBlocked = true;
+      chartHeight = 6;
+    }
     setState(() {});
   }
 
@@ -41,9 +98,26 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: Text('Thermometr'),
         ),
-        floatingActionButton: MainFloatingButton(
-          isRecording: isRecording,
-          selectHandler: tooggleRecord,
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BlockFloatingButton(
+              isBlocked: isBlocked,
+              selectHandler: blockChart,
+            ),
+            RecordFloatingButton(
+              isRecording: isRecording,
+              selectHandler: tooggleRecord,
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            FftCart(
+              data: data,
+              chartHeight: chartHeight,
+            ),
+          ],
         ),
       ),
     );

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class MainFloatingButton extends StatelessWidget {
+class RecordFloatingButton extends StatelessWidget {
   bool isRecording;
   VoidCallback? selectHandler;
 
-  MainFloatingButton({Key? key, this.isRecording = false, this.selectHandler})
+  RecordFloatingButton({Key? key, this.isRecording = false, this.selectHandler})
       : super(key: key);
 
   Icon _getIcon() =>
