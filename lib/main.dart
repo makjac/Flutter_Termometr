@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
   bool isRecording = false;
   bool isBlocked = false;
   int samplingRate = 16000;
-  double maxFrequency = 0;
-  double? chartHeight = null;
+  int maxFrequency = 0;
+  double? chartHeight;
 
   @override
   void initState() {
@@ -55,13 +55,15 @@ class _MyAppState extends State<MyApp> {
     });
     var Y = fft(arrayToComplexArray(
         Array(X.getRange(0, (X.length / 2).toInt()).toList())));
-    var power = arrayComplexAbs(Y).l;
+    var power = arrayComplexAbs(Y);
     List<double> frequency = [];
     for (int i = 0; i < power.length ~/ 2; i++) {
       frequency.add((i * samplingRate) / (power.length * 4));
-      data.add(ChartData(power[i]!, frequency[i]));
+      data.add(ChartData(power[i], frequency[i]));
     }
-    //maxFrequency = frequency[arrayArgMax(power)];
+    maxFrequency =
+        frequency[arrayArgMax(power.getRangeArray(0, power.length ~/ 2))]
+            .round();
     setState(() {});
   }
 
@@ -111,13 +113,24 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            FftCart(
-              data: data,
-              chartHeight: chartHeight,
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              FftCart(
+                data: data,
+                chartHeight: chartHeight,
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: Center(
+                  child: Text(
+                    'Frequency: $maxFrequency',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
