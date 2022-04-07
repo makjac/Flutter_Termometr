@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fft/api/data_signal.dart';
+import 'package:fft/graphic/Charts/signalCart.dart';
 import 'package:flutter_audio_capture/flutter_audio_capture.dart';
 import 'package:flutter/material.dart';
 import 'package:scidart/numdart.dart';
@@ -11,7 +13,7 @@ import './api/api_base.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -21,6 +23,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final FlutterAudioCapture _plugin = FlutterAudioCapture();
   List<ChartData> data = [];
+  List<DataSignal> signalData = [];
   bool isRecording = false;
   bool isBlocked = false;
   int samplingRate = 16000;
@@ -49,13 +52,17 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> draw(dynamic obj) async {
     data = [];
+    signalData = [];
     List<double> X = [];
     obj.forEach((element) {
       X.add(element);
     });
-    var Y = fft(arrayToComplexArray(
-        Array(X.getRange(0, (X.length / 2).toInt()).toList())));
+    var Y =
+        fft(arrayToComplexArray(Array(X.getRange(0, X.length ~/ 2).toList())));
     var power = arrayComplexAbs(Y);
+    if (isBlocked) {
+      power = arrayDivisionToScalar(power, arrayMax(power));
+    }
     List<double> frequency = [];
     for (int i = 0; i < power.length ~/ 2; i++) {
       frequency.add((i * samplingRate) / (power.length * 4));
@@ -64,10 +71,20 @@ class _MyAppState extends State<MyApp> {
     maxFrequency =
         frequency[arrayArgMax(power.getRangeArray(0, power.length ~/ 2))]
             .round();
+
+    for (int i = power.length ~/ 4; i < power.length ~/ 2.5; i++) {
+      if (isBlocked) {
+        double temp = arrayMax(Array(X));
+        signalData.add(DataSignal((X[i] / temp).abs(), i.toDouble()));
+      } else {
+        signalData.add(DataSignal(X[i].abs(), i.toDouble()));
+      }
+    }
     setState(() {});
   }
 
   void onError(Object e) {
+    // ignore: avoid_print
     print(e);
   }
 
@@ -87,7 +104,7 @@ class _MyAppState extends State<MyApp> {
       chartHeight = null;
     } else {
       isBlocked = true;
-      chartHeight = 6;
+      chartHeight = 1;
     }
     setState(() {});
   }
@@ -98,7 +115,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.dark(),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Thermometr'),
+          title: const Text('Thermometr'),
         ),
         floatingActionButton: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,16 +133,22 @@ class _MyAppState extends State<MyApp> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              FftCart(
+              SignalChart(
+                data: signalData,
+                chartHeight: chartHeight,
+                height: 300,
+              ),
+              FftChart(
                 data: data,
                 chartHeight: chartHeight,
+                height: 300,
               ),
               Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
+                margin: const EdgeInsets.symmetric(vertical: 10),
                 child: Center(
                   child: Text(
                     'Frequency: $maxFrequency',
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                   ),
                 ),
               )

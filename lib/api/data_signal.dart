@@ -4,6 +4,9 @@
 ///Created:   02.04.2022
 ///=============================================================================
 
-export 'widgets/recordFloatingButton.dart';
-export './widgets/blockFloatingButton.dart';
-export './Charts/fftChart.dart';
+class DataSignal {
+  final double amplitude;
+  final double time;
+
+  DataSignal(this.amplitude, this.time);
+}

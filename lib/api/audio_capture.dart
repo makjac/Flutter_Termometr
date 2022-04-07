@@ -1,3 +1,9 @@
+///=============================================================================
+///Name:      main.dart
+///Author:    Maksymilian Jackowski
+///Created:   02.04.2022
+///=============================================================================
+
 import 'dart:async';
 
 import 'package:flutter_audio_capture/flutter_audio_capture.dart';
@@ -35,6 +41,7 @@ class AudioCapture {
   }
 
   void onError(Object e) {
+    // ignore: avoid_print
     print(e);
   }
 

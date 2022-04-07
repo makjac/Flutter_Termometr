@@ -4,18 +4,19 @@
 ///Created:   02.04.2022
 ///=============================================================================
 
+import 'package:fft/api/data_signal.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../api/data_fft.dart';
+import '../../api/data_signal.dart';
 
 // ignore: must_be_immutable
-class FftChart extends StatelessWidget {
+class SignalChart extends StatelessWidget {
   double? chartHeight;
   double height;
-  List<ChartData> data = [];
+  List<DataSignal> data = [];
 
-  FftChart({
+  SignalChart({
     Key? key,
     this.chartHeight,
     this.height = 200,
@@ -27,19 +28,19 @@ class FftChart extends StatelessWidget {
     return SizedBox(
       height: height,
       child: SfCartesianChart(
-        title: ChartTitle(text: 'Fast fourier Transform'),
+        title: ChartTitle(text: 'Real time signal'),
         primaryXAxis: NumericAxis(),
         primaryYAxis: NumericAxis(
           maximum: chartHeight,
           minimum: 0,
         ),
         series: <ChartSeries>[
-          FastLineSeries<ChartData, double>(
+          FastLineSeries<DataSignal, double>(
             animationDelay: 0,
             animationDuration: 0,
             dataSource: data,
-            xValueMapper: (ChartData data, _) => data.frequency,
-            yValueMapper: (ChartData data, _) => data.power,
+            xValueMapper: (DataSignal data, _) => data.time,
+            yValueMapper: (DataSignal data, _) => data.amplitude,
           ),
         ],
       ),

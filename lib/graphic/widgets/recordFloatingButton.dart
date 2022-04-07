@@ -1,5 +1,12 @@
+///=============================================================================
+///Name:      main.dart
+///Author:    Maksymilian Jackowski
+///Created:   02.04.2022
+///=============================================================================
+
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class RecordFloatingButton extends StatelessWidget {
   bool isRecording;
   VoidCallback? selectHandler;

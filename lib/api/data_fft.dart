@@ -4,6 +4,9 @@
 ///Created:   02.04.2022
 ///=============================================================================
 
-export 'widgets/recordFloatingButton.dart';
-export './widgets/blockFloatingButton.dart';
-export './Charts/fftChart.dart';
+class ChartData {
+  final double power;
+  final double frequency;
+
+  ChartData(this.power, this.frequency);
+}

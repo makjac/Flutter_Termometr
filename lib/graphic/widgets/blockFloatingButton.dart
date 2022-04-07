@@ -1,10 +1,18 @@
+///=============================================================================
+///Name:      main.dart
+///Author:    Maksymilian Jackowski
+///Created:   02.04.2022
+///=============================================================================
+
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class BlockFloatingButton extends StatelessWidget {
   bool isBlocked;
   VoidCallback? selectHandler;
 
-  BlockFloatingButton({Key? key, this.isBlocked = false, this.selectHandler});
+  BlockFloatingButton({Key? key, this.isBlocked = false, this.selectHandler})
+      : super(key: key);
 
   Icon _getIcon() => isBlocked
       ? const Icon(Icons.run_circle_outlined)
@@ -17,7 +25,7 @@ class BlockFloatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 25),
+      margin: const EdgeInsets.only(left: 25),
       child: FloatingActionButton(
         onPressed: selectHandler,
         child: _getIcon(),
