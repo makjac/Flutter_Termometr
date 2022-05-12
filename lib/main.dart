@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:fft/api/data_signal.dart';
-import 'package:fft/graphic/Charts/signalCart.dart';
 import 'package:flutter_audio_capture/flutter_audio_capture.dart';
 import 'package:flutter/material.dart';
 import 'package:scidart/numdart.dart';
@@ -10,7 +9,7 @@ import 'package:scidart/scidart.dart';
 import './graphic/graphic_base.dart';
 import './api/api_base.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -26,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   List<DataSignal> signalData = [];
   bool isRecording = false;
   bool isBlocked = false;
-  int samplingRate = 16000;
+  int _samplingRate = 16000;
   int maxFrequency = 0;
   double? chartHeight;
 
@@ -37,7 +36,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _startCapture() async {
     await _plugin.start(listener, onError,
-        sampleRate: samplingRate, bufferSize: 5000);
+        sampleRate: _samplingRate, bufferSize: 5000);
   }
 
   Future<void> _stopCapture() async {
@@ -65,7 +64,7 @@ class _MyAppState extends State<MyApp> {
     }
     List<double> frequency = [];
     for (int i = 0; i < power.length ~/ 2; i++) {
-      frequency.add((i * samplingRate) / (power.length * 4));
+      frequency.add((i * _samplingRate) / (power.length * 4));
       data.add(ChartData(power[i], frequency[i]));
     }
     maxFrequency =
@@ -143,18 +142,55 @@ class _MyAppState extends State<MyApp> {
                 chartHeight: chartHeight,
                 height: 300,
               ),
-              Container(
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        'Frequency: $maxFrequency',
-                        style: const TextStyle(fontSize: 20),
+              Center(
+                child: Column(
+                  children: <Widget>[
+                    InfoCard(
+                        label: 'Frequency',
+                        value: /*maxFrequency*/ 3000,
+                        unit: "Hz"),
+                    InfoCard(label: 'Temperature', value: 0, unit: "°C"),
+                    SizedBox(
+                      width: 400,
+                      child: Card(
+                        margin: const EdgeInsets.only(top: 20),
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(
+                            color: Color.fromARGB(87, 255, 255, 255),
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              transformAlignment: Alignment.topLeft,
+                              child: const Text(
+                                "Sample Rate:",
+                                style: TextStyle(fontSize: 25),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              child: Slider(
+                                value: _samplingRate.toDouble(),
+                                min: 16000,
+                                max: 48000,
+                                divisions: 100,
+                                label: _samplingRate.toString(),
+                                onChanged: (double value) {
+                                  setState(() {
+                                    _samplingRate = value.toInt();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      InfoCard(label: 'Frequency', value: maxFrequency),
-                      InfoCard(label: 'Temperature', value: 0),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               )
             ],
