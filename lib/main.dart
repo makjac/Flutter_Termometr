@@ -133,22 +133,27 @@ class _MyAppState extends State<MyApp> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              SignalChart(
-                data: signalData,
-                chartHeight: chartHeight,
-                height: 300,
-              ),
+              // SignalChart(
+              //   data: signalData,
+              //   chartHeight: chartHeight,
+              //   height: 300,
+              // ),
               FftChart(
                 data: data,
                 chartHeight: chartHeight,
                 height: 300,
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
                 child: Center(
-                  child: Text(
-                    'Frequency: $maxFrequency',
-                    style: const TextStyle(fontSize: 20),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Frequency: $maxFrequency',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      InfoCard(label: 'Frequency', value: maxFrequency),
+                      InfoCard(label: 'Temperature', value: 0),
+                    ],
                   ),
                 ),
               )

@@ -29,6 +29,7 @@ class RecordFloatingButton extends StatelessWidget {
       backgroundColor: _getColor(),
       foregroundColor: Colors.white,
       tooltip: _getText(),
+      mouseCursor: MouseCursor.uncontrolled,
     );
   }
 }
