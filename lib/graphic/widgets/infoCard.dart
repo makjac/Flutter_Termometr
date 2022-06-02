@@ -1,9 +1,3 @@
-///=============================================================================
-///Name:      main.dart
-///Author:    Maksymilian Jackowski
-///Created:   12.05.2022
-///=============================================================================
-
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
